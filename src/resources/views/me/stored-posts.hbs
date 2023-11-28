@@ -1,0 +1,146 @@
+<form method="POST" name="selected-post-form" class="m-4" action="/post/handle-form-action">
+    <h2>My Post</h2>
+    <div>
+        <a href="/me/trash/posts">Go to Trash</a>
+    </div>
+    <div class="my-3 d-flex gap-2">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="" id="checkBoxAll" />
+            <label class="form-check-label" for="flexCheckDefault">
+                Select All
+            </label>
+        </div>
+        <select class="form-select form-select-sm" id="selectBox" name="action">
+            <option value="0" selected>Open this select menu</option>
+            <option value="1">Delete</option>
+        </select>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#multipleSelectModal" id="btnSelectBox" disabled>
+            Submit
+        </button>
+        <div class="modal fade" id="multipleSelectModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="multipleSelectModalLabel">Are you sure ?</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolore id earum hic debitis praesentium rerum eveniet vel fuga autem. Fugit harum, voluptatibus quia quibusdam amet consectetur deserunt libero fuga quisquam.    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="confirmButton">Save changes</button>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">#</th>
+                <th scope="col">
+                    Title
+                    <span>
+                        
+                    </span>
+                </th>
+                <th scope="col">Description</th>
+                <th scope="col" colspan="3">Create At</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each posts}}
+            <tr>
+                <td>
+                    <input class="form-check-input" type="checkbox" value="{{this._id}}" name="posts[]" id="postCheckBox"/>
+                </td>
+                <td scope="row">{{increaseIndex @index}}</td>
+                <td>{{this.name}}</td>
+                <td>{{this.description}}</td>
+                <td>{{this.createdAt}}</td>
+                <td>
+                    <a href="/post/{{this._id}}/edit" type="button" class="btn btn-primary">Edit</a>
+                </td>
+                <td>
+                    <a type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#deleteOneModal" data-bs-id="{{this._id}}">Delete</a>
+                    <div class="modal fade" id="deleteOneModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Delete</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Confirm to delete your post
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-danger" id="delete-btn" data-bs-id="{{this._id}}">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {{else}}
+            <tr>
+                <td colspan="5" class="text-center">
+                    There is no post.
+                    <a href="/post/create">Create post here</a>
+                </td>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
+</form>
+<form method="POST" name="delete-post-form" class="m-4"></form>
+
+<script>
+    const deleteForm = document.forms["delete-post-form"];
+    const deleteBtn = document.querySelector("#delete-btn");
+    const deleteOneModal = document.getElementById("deleteOneModal");
+    const selectAllCheck = document.querySelector("#checkBoxAll");
+    const allOfPostCheckBox = Array.from(document.querySelectorAll('#postCheckBox'));
+    const selectBox = document.querySelector('#selectBox');
+    const btnSelectBox = document.querySelector('#btnSelectBox');
+    const confirmButton = document.querySelector('#confirmButton');
+    const selectedPostForm = document.querySelector('[name="selected-post-form"]');
+    var postId;
+    // Delete one
+    if (deleteOneModal) {
+        deleteOneModal.addEventListener("show.bs.modal", (event) => {
+            const button = event.relatedTarget;
+            postId = button.getAttribute("data-bs-id");
+        });
+        deleteBtn.onclick = () => {
+            deleteForm.setAttribute("action", `/post/${postId}/delete?_method=DELETE`);
+            deleteForm.submit();
+        };
+    }
+    // Check All 
+    var curNumberOfChecks;
+    function BtnCheck() { 
+        curNumberOfChecks = document.querySelectorAll('input[id="postCheckBox"]:checked').length;
+        selectBox.value > 0 && curNumberOfChecks > 0 ? btnSelectBox.disabled = false : btnSelectBox.disabled = true;
+    }
+    selectAllCheck.onclick = () => {
+        allOfPostCheckBox.forEach(checkBox => checkBox.checked=selectAllCheck.checked);
+        BtnCheck();
+    }
+    allOfPostCheckBox.forEach(checkBox => {
+        checkBox.onclick = () => {
+            curNumberOfChecks = document.querySelectorAll('input[id="postCheckBox"]:checked').length;
+            curNumberOfChecks === allOfPostCheckBox.length ? selectAllCheck.checked=true : selectAllCheck.checked=false;
+            BtnCheck();
+        }
+    })
+    selectBox.onchange = () => {
+        BtnCheck();
+    }
+    // Select Method Submit
+    confirmButton.onclick = () => { 
+        selectedPostForm.submit();
+    }
+</script>

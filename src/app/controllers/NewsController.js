@@ -6,7 +6,7 @@ class NewsController {
     
     // [GET]
     show(req, res) {
-        res.send('Quang dz');
+        res.send('Quang dz iu Thu Ha xinh gai');
     }
 }
 

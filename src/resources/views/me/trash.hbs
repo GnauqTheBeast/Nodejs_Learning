@@ -1,0 +1,86 @@
+<div class="m-4">
+    <h2>Trash</h2>
+    <div>
+        <a href="/me/stored/posts">Go back to My Post</a>
+    </div>
+    <table class="table">
+    <thead>
+        <tr>
+        <th scope="col">#</th>
+        <th scope="col">Title</th>
+        <th scope="col">Description</th>
+        <th scope="col" colspan="3">Delete At</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{#each posts}}
+            <tr>
+            <th scope="row">{{increaseIndex @index}}</th>
+            <td>{{this.name}}</td>
+            <td>{{this.description}}</td>
+            <td>{{this.deletedAt}}</td>
+            <td>
+                <a type="button" class="btn btn-primary" id="restore-btn" data-bs-id="{{this._id}}">Restore</a>
+            </td>
+            <td>
+                <a type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#exampleModal">Destroy</a>
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Post</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>
+                                Do you want to delete it ? 
+                            </p>
+                            <p>
+                                It means you can not restore it in the future
+                            </p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-danger" id="destroy-btn" data-bs-id="{{this._id}}">Destroy</button>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            </tr>
+            <tr>
+        {{else}}
+        <tr>
+            <td colspan="5" class="text-center">There is no post in trash.
+            </td>
+        </tr>
+        {{/each}}
+    </tbody>
+    </table>
+</div>
+<form method="POST" name="trash-post-form" class="m-4"></form>
+
+<script>
+    const Form = document.forms['trash-post-form'];
+    const restoreBtns = document.querySelectorAll('#restore-btn');
+    const destroyBtn = document.querySelector('#destroy-btn');
+    const exampleModal = document.getElementById('exampleModal');
+    var postId;
+    if (exampleModal) {
+        // Restore Post
+        restoreBtns.forEach(restoreBtn => {
+            restoreBtn.onclick = (e) => {
+                e.preventDefault();
+                postId = restoreBtn.getAttribute('data-bs-id');
+                Form.setAttribute('action', `/post/${postId}/restore?_method=PATCH`);
+                Form.submit();
+            }
+        });
+        // Destroy Post  
+        destroyBtn.onclick = () => {
+            postId = destroyBtn.getAttribute('data-bs-id');
+            Form.setAttribute('action', `/post/${postId}/destroy?_method=DELETE`);
+            Form.submit();
+        }
+    }
+</script>
